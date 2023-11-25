@@ -1,0 +1,23 @@
+version: '3.1'
+services:
+  db:
+    container_name: db
+    image: mysql:latest
+    restart: always
+    environment:
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - ./mysql:/var/lib/mysql
+    ports:
+      - '${DB_PORT}:3306'
+    expose:
+      - '${DB_PORT}'
+  backend:
+    container_name: backend
+    restart: always
+    build: .
+    ports:
+      - '3000:3000'
+    depends_on:
+      - db
