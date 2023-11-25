@@ -14,7 +14,7 @@ model user {
   user_id        Int             @id @unique @default(autoincrement())
   email          String          @unique
   full_name      String
-  photo_url      String
+  photo_url      String?
   password_hash  String?
   auth_providers auth_providers?
 
