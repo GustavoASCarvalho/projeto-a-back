@@ -7,6 +7,8 @@ export const auth = express.Router();
 const authController = new AuthController();
 const authMiddleware = new AuthMiddleware();
 
+auth.post('/register', authController.register);
 auth.post('/authenticate', authController.authenticate);
+auth.get('/authenticate/google', authController.google);
 auth.use(authMiddleware.middleware);
 auth.get('/verify', authController.verify);

@@ -11,7 +11,7 @@ export class GoogleAuthService {
 			code,
 			client_id: env.GOOGLE_CLIENT_ID,
 			client_secret: env.GOOGLE_CLIENT_SECRET,
-			redirect_uri: `${env.HOST}/sessions/oauth/google`,
+			redirect_uri: `${env.HOST}/auth/authenticate/google`,
 			grant_type: 'authorization_code',
 		};
 

@@ -20,5 +20,5 @@ app.get('/', (_, res) => {
 app.use(new ErrorMiddleware().middleware);
 
 app.listen(env.PORT || 3000, () => {
-	console.log(`Server started on port http://localhost:${env.PORT || 3000}}`);
+	console.log(`Server started on port http://localhost:${env.PORT || 3000}`);
 });
