@@ -11,31 +11,38 @@ datasource db {
 }
 
 model user {
-  user_id        Int             @id @unique @default(autoincrement())
-  email          String          @unique
+  user_id        Int            @id @unique @default(autoincrement())
+  email          String         @unique
   full_name      String?
   photo_url      String?
   password_hash  String?
-  auth_providers auth_providers?
+  auth_providers auth_provider?
 
   @@map("user")
 }
 
-model auth_providers {
-  provider_id       Int            @id @unique @default(autoincrement())
-  provider_user_id  String         @unique
+model auth_provider {
+  provider_id       Int           @id @unique @default(autoincrement())
+  provider_user_id  String        @unique
   provider_names_id Int
-  user_id           Int            @unique
-  user              user           @relation(fields: [user_id], references: [user_id])
-  provider_names    provider_names @relation(fields: [provider_names_id], references: [provider_names_id])
+  user_id           Int           @unique
+  user              user          @relation(fields: [user_id], references: [user_id])
+  provider_names    provider_name @relation(fields: [provider_names_id], references: [provider_names_id])
 
-  @@map("auth_providers")
+  @@map("auth_provider")
 }
 
-model provider_names {
-  provider_names_id Int              @id @unique @default(autoincrement())
-  name              String           @unique
-  auth_providers    auth_providers[]
+model provider_name {
+  provider_names_id Int             @id @unique @default(autoincrement())
+  name              String          @unique
+  auth_providers    auth_provider[]
 
-  @@map("provider_names")
+  @@map("provider_name")
+}
+
+model template_category {
+  template_category_id Int    @id @unique @default(autoincrement())
+  name                 String @unique
+
+  @@map("template_category")
 }

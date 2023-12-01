@@ -1,5 +1,5 @@
-import { auth_providers } from '@prisma/client';
+import { auth_provider } from '@prisma/client';
 
 export interface AuthProvidersRepository {
-	findOrCreate(data: Partial<auth_providers>): Promise<auth_providers>;
+	findOrCreate(data: Partial<auth_provider>): Promise<auth_provider>;
 }

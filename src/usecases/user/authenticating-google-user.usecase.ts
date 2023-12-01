@@ -31,8 +31,6 @@ export class AuthenticatingGoogleUser {
 
 		const googleUser = jwt.decode(id_token) as GoogleUser;
 
-		console.log({ googleUser });
-
 		if (!googleUser) {
 			throw new ApiError('Unauthorize', 401);
 		}

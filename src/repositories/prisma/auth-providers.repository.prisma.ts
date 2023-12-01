@@ -1,10 +1,10 @@
-import { auth_providers } from '@prisma/client';
+import { auth_provider } from '@prisma/client';
 import { AuthProvidersRepository } from '../interfaces/auth-providers.interface';
 import { prisma } from '../../prisma';
 
 export class PrismaAuthProvidersRepository implements AuthProvidersRepository {
-	async findOrCreate(data: auth_providers): Promise<auth_providers> {
-		return await prisma.auth_providers.upsert({
+	async findOrCreate(data: auth_provider): Promise<auth_provider> {
+		return await prisma.auth_provider.upsert({
 			where: {
 				user_id: data.user_id,
 			},
