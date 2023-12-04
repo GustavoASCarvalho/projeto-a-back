@@ -4,8 +4,9 @@ import { AuthController } from '../controllers/auth.controller';
 
 export const auth = express.Router();
 
-const authController = new AuthController();
 const authMiddleware = new AuthMiddleware();
+
+const authController = new AuthController();
 
 auth.post('/register', authController.register);
 auth.post('/authenticate', authController.authenticate);

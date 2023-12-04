@@ -4,8 +4,9 @@ import express from 'express';
 
 export const user = express.Router();
 
-const userController = new UserController();
 const authMiddleware = new AuthMiddleware();
 
+const userController = new UserController();
+
 user.use(authMiddleware.middleware);
-user.get('', userController.get);
+user.get('/', userController.get);

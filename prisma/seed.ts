@@ -16,35 +16,35 @@ async function main() {
 		],
 	});
 
-	await prisma.template_category.createMany({
+	await prisma.category.createMany({
 		data: [
 			{
 				name: 'Education',
-				template_category_id: 1,
+				category_id: 1,
 			},
 			{
 				name: 'Support',
-				template_category_id: 2,
+				category_id: 2,
 			},
 			{
 				name: 'Email',
-				template_category_id: 3,
+				category_id: 3,
 			},
 			{
 				name: 'Language',
-				template_category_id: 4,
+				category_id: 4,
 			},
 			{
 				name: 'Writing Assistant',
-				template_category_id: 5,
+				category_id: 5,
 			},
 			{
 				name: 'Other',
-				template_category_id: 6,
+				category_id: 6,
 			},
 			{
 				name: 'Favourites',
-				template_category_id: 7,
+				category_id: 7,
 			},
 		],
 	});
