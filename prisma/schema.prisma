@@ -42,26 +42,27 @@ model provider_name {
 }
 
 model category {
-  category_id            Int                      @id @unique @default(autoincrement())
-  name                   String                   @unique
-  categories_on_template categories_on_template[]
+  category_id                    Int                              @id @unique @default(autoincrement())
+  name                           String                           @unique
+  categories_on_template         categories_on_template[]
+  categories_on_template_history categories_on_template_history[]
 
   @@map("category")
 }
 
 model template_history {
-  template_history_id    Int                      @id @unique @default(autoincrement())
-  name                   String
-  description            String                   @db.Text
-  prompt                 String                   @db.Text
-  visibility             visibility
-  variables              variable[]
-  categories_on_template categories_on_template[]
-  conversations          conversation[]
-  ratings                rating[]
-  created_at             DateTime                 @default(now())
-  template               template                 @relation(fields: [template_id], references: [template_id])
-  template_id            Int
+  template_history_id            Int                              @id @unique @default(autoincrement())
+  name                           String
+  description                    String                           @db.Text
+  prompt                         String                           @db.Text
+  logo_url                       String                           @db.Text
+  visibility                     visibility
+  variables                      variable[]
+  categories_on_template_history categories_on_template_history[]
+  conversations                  conversation[]
+  created_at                     DateTime                         @default(now())
+  template                       template                         @relation(fields: [template_id], references: [template_id])
+  template_id                    Int
 
   @@map("template_history")
 }
@@ -71,13 +72,13 @@ model template {
   slug                   String                   @unique @default(uuid())
   user                   user                     @relation(fields: [user_id], references: [user_id])
   user_id                Int
+  logo_url               String                   @db.Text
   name                   String
   description            String                   @db.Text
   prompt                 String                   @db.Text
   visibility             visibility               @default(PRIVATE)
   variables              variable[]
   categories_on_template categories_on_template[]
-  conversations          conversation[]
   ratings                rating[]
   created_at             DateTime                 @default(now())
   updated_at             DateTime                 @updatedAt
@@ -89,6 +90,7 @@ model template {
 model variable {
   variable_id         Int               @id @unique @default(autoincrement())
   name                String            @db.Text
+  value               String            @db.Text
   placeholder         String            @db.Text
   tip                 String            @db.Text
   template            template?         @relation(fields: [template_id], references: [template_id])
@@ -102,15 +104,23 @@ model variable {
 }
 
 model categories_on_template {
-  template_history    template_history @relation(fields: [template_history_id], references: [template_history_id])
+  category    category @relation(fields: [category_id], references: [category_id])
+  category_id Int
+  template    template @relation(fields: [template_id], references: [template_id])
+  template_id Int
+
+  @@id([template_id, category_id])
+  @@map("categories_on_template")
+}
+
+model categories_on_template_history {
+  template_history    template_history? @relation(fields: [template_history_id], references: [template_history_id])
   template_history_id Int
-  category            category         @relation(fields: [category_id], references: [category_id])
+  category            category          @relation(fields: [category_id], references: [category_id])
   category_id         Int
-  template            template?        @relation(fields: [template_id], references: [template_id])
-  template_id         Int?
 
   @@id([template_history_id, category_id])
-  @@map("categories_on_template")
+  @@map("categories_on_template_history")
 }
 
 model conversation {
@@ -119,17 +129,26 @@ model conversation {
   template_history_id Int
   user                user             @relation(fields: [user_id], references: [user_id])
   user_id             Int
-  message             String
-  response            String?
-  chatgpt_api_key     chatgpt_api_key  @relation(fields: [chatgpt_api_key_id], references: [chatgpt_api_key_id])
-  chatgpt_api_key_id  Int
   variables           variable_value[]
   timestamp           DateTime         @default(now())
   feedback            feedback?
-  template            template?        @relation(fields: [template_id], references: [template_id])
-  template_id         Int?
+  messages            message[]
 
   @@map("conversation")
+}
+
+model message {
+  message_id         Int             @id @unique @default(autoincrement())
+  conversation       conversation    @relation(fields: [conversation_id], references: [conversation_id])
+  conversation_id    Int
+  chatgpt_api_key    chatgpt_api_key @relation(fields: [chatgpt_api_key_id], references: [chatgpt_api_key_id])
+  chatgpt_api_key_id Int
+  message            String
+  response           String?
+  message_timestamp  DateTime        @default(now())
+  response_timestamp DateTime?
+
+  @@map("message")
 }
 
 model variable_value {
@@ -154,27 +173,26 @@ model feedback {
 }
 
 model rating {
-  rating_id           Int              @id @unique @default(autoincrement())
-  template_history    template_history @relation(fields: [template_history_id], references: [template_history_id])
+  rating_id           Int      @id @unique @default(autoincrement())
   template_history_id Int
-  user                user             @relation(fields: [user_id], references: [user_id])
+  user                user     @relation(fields: [user_id], references: [user_id])
   user_id             Int
   rating              Int
-  timestamp           DateTime         @default(now())
-  template            template?        @relation(fields: [template_id], references: [template_id])
-  template_id         Int?
+  timestamp           DateTime @default(now())
+  template            template @relation(fields: [template_id], references: [template_id])
+  template_id         Int
 
   @@map("rating")
 }
 
 model chatgpt_api_key {
-  chatgpt_api_key_id Int            @id @unique @default(autoincrement())
-  user               user           @relation(fields: [user_id], references: [user_id])
+  chatgpt_api_key_id Int       @id @unique @default(autoincrement())
+  user               user      @relation(fields: [user_id], references: [user_id])
   user_id            Int
-  api_key            String         @unique
+  api_key            String    @unique
   name               String
-  created_at         DateTime       @default(now())
-  conversations      conversation[]
+  created_at         DateTime  @default(now())
+  messages           message[]
 
   @@map("chatgpt_api_key")
 }

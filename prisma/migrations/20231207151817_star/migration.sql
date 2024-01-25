@@ -50,8 +50,9 @@ CREATE TABLE `template_history` (
     `name` VARCHAR(191) NOT NULL,
     `description` TEXT NOT NULL,
     `prompt` TEXT NOT NULL,
+    `logo_url` TEXT NOT NULL,
     `visibility` ENUM('PUBLIC', 'PRIVATE', 'NOT_LISTED') NOT NULL,
-    `created_at` DATETIME(3) NOT NULL,
+    `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `template_id` INTEGER NOT NULL,
 
     UNIQUE INDEX `template_history_template_history_id_key`(`template_history_id`),
@@ -63,6 +64,7 @@ CREATE TABLE `template` (
     `template_id` INTEGER NOT NULL AUTO_INCREMENT,
     `slug` VARCHAR(191) NOT NULL,
     `user_id` INTEGER NOT NULL,
+    `logo_url` TEXT NOT NULL,
     `name` VARCHAR(191) NOT NULL,
     `description` TEXT NOT NULL,
     `prompt` TEXT NOT NULL,
@@ -79,9 +81,10 @@ CREATE TABLE `template` (
 CREATE TABLE `variable` (
     `variable_id` INTEGER NOT NULL AUTO_INCREMENT,
     `name` TEXT NOT NULL,
+    `value` TEXT NOT NULL,
     `placeholder` TEXT NOT NULL,
     `tip` TEXT NOT NULL,
-    `template_id` INTEGER NOT NULL,
+    `template_id` INTEGER NULL,
     `type` ENUM('STRING', 'TEXT') NOT NULL DEFAULT 'STRING',
     `template_history_id` INTEGER NULL,
 
@@ -91,9 +94,16 @@ CREATE TABLE `variable` (
 
 -- CreateTable
 CREATE TABLE `categories_on_template` (
+    `category_id` INTEGER NOT NULL,
+    `template_id` INTEGER NOT NULL,
+
+    PRIMARY KEY (`template_id`, `category_id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `categories_on_template_history` (
     `template_history_id` INTEGER NOT NULL,
     `category_id` INTEGER NOT NULL,
-    `template_id` INTEGER NULL,
 
     PRIMARY KEY (`template_history_id`, `category_id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -103,14 +113,24 @@ CREATE TABLE `conversation` (
     `conversation_id` INTEGER NOT NULL AUTO_INCREMENT,
     `template_history_id` INTEGER NOT NULL,
     `user_id` INTEGER NOT NULL,
-    `message` VARCHAR(191) NOT NULL,
-    `response` VARCHAR(191) NULL,
-    `chatgpt_api_key_id` INTEGER NOT NULL,
     `timestamp` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
-    `template_id` INTEGER NULL,
 
     UNIQUE INDEX `conversation_conversation_id_key`(`conversation_id`),
     PRIMARY KEY (`conversation_id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `message` (
+    `message_id` INTEGER NOT NULL AUTO_INCREMENT,
+    `conversation_id` INTEGER NOT NULL,
+    `chatgpt_api_key_id` INTEGER NOT NULL,
+    `message` VARCHAR(191) NOT NULL,
+    `response` VARCHAR(191) NULL,
+    `message_timestamp` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `response_timestamp` DATETIME(3) NULL,
+
+    UNIQUE INDEX `message_message_id_key`(`message_id`),
+    PRIMARY KEY (`message_id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
@@ -143,7 +163,7 @@ CREATE TABLE `rating` (
     `user_id` INTEGER NOT NULL,
     `rating` INTEGER NOT NULL,
     `timestamp` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
-    `template_id` INTEGER NULL,
+    `template_id` INTEGER NOT NULL,
 
     UNIQUE INDEX `rating_rating_id_key`(`rating_id`),
     PRIMARY KEY (`rating_id`)
@@ -175,19 +195,22 @@ ALTER TABLE `template_history` ADD CONSTRAINT `template_history_template_id_fkey
 ALTER TABLE `template` ADD CONSTRAINT `template_user_id_fkey` FOREIGN KEY (`user_id`) REFERENCES `user`(`user_id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `variable` ADD CONSTRAINT `variable_template_id_fkey` FOREIGN KEY (`template_id`) REFERENCES `template`(`template_id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `variable` ADD CONSTRAINT `variable_template_id_fkey` FOREIGN KEY (`template_id`) REFERENCES `template`(`template_id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `variable` ADD CONSTRAINT `variable_template_history_id_fkey` FOREIGN KEY (`template_history_id`) REFERENCES `template_history`(`template_history_id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `categories_on_template` ADD CONSTRAINT `categories_on_template_template_history_id_fkey` FOREIGN KEY (`template_history_id`) REFERENCES `template_history`(`template_history_id`) ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
 ALTER TABLE `categories_on_template` ADD CONSTRAINT `categories_on_template_category_id_fkey` FOREIGN KEY (`category_id`) REFERENCES `category`(`category_id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `categories_on_template` ADD CONSTRAINT `categories_on_template_template_id_fkey` FOREIGN KEY (`template_id`) REFERENCES `template`(`template_id`) ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE `categories_on_template` ADD CONSTRAINT `categories_on_template_template_id_fkey` FOREIGN KEY (`template_id`) REFERENCES `template`(`template_id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `categories_on_template_history` ADD CONSTRAINT `categories_on_template_history_template_history_id_fkey` FOREIGN KEY (`template_history_id`) REFERENCES `template_history`(`template_history_id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `categories_on_template_history` ADD CONSTRAINT `categories_on_template_history_category_id_fkey` FOREIGN KEY (`category_id`) REFERENCES `category`(`category_id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `conversation` ADD CONSTRAINT `conversation_template_history_id_fkey` FOREIGN KEY (`template_history_id`) REFERENCES `template_history`(`template_history_id`) ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -196,10 +219,10 @@ ALTER TABLE `conversation` ADD CONSTRAINT `conversation_template_history_id_fkey
 ALTER TABLE `conversation` ADD CONSTRAINT `conversation_user_id_fkey` FOREIGN KEY (`user_id`) REFERENCES `user`(`user_id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `conversation` ADD CONSTRAINT `conversation_chatgpt_api_key_id_fkey` FOREIGN KEY (`chatgpt_api_key_id`) REFERENCES `chatgpt_api_key`(`chatgpt_api_key_id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `message` ADD CONSTRAINT `message_conversation_id_fkey` FOREIGN KEY (`conversation_id`) REFERENCES `conversation`(`conversation_id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `conversation` ADD CONSTRAINT `conversation_template_id_fkey` FOREIGN KEY (`template_id`) REFERENCES `template`(`template_id`) ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE `message` ADD CONSTRAINT `message_chatgpt_api_key_id_fkey` FOREIGN KEY (`chatgpt_api_key_id`) REFERENCES `chatgpt_api_key`(`chatgpt_api_key_id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `variable_value` ADD CONSTRAINT `variable_value_conversation_id_fkey` FOREIGN KEY (`conversation_id`) REFERENCES `conversation`(`conversation_id`) ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -211,13 +234,10 @@ ALTER TABLE `variable_value` ADD CONSTRAINT `variable_value_variable_id_fkey` FO
 ALTER TABLE `feedback` ADD CONSTRAINT `feedback_conversation_id_fkey` FOREIGN KEY (`conversation_id`) REFERENCES `conversation`(`conversation_id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `rating` ADD CONSTRAINT `rating_template_history_id_fkey` FOREIGN KEY (`template_history_id`) REFERENCES `template_history`(`template_history_id`) ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
 ALTER TABLE `rating` ADD CONSTRAINT `rating_user_id_fkey` FOREIGN KEY (`user_id`) REFERENCES `user`(`user_id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `rating` ADD CONSTRAINT `rating_template_id_fkey` FOREIGN KEY (`template_id`) REFERENCES `template`(`template_id`) ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE `rating` ADD CONSTRAINT `rating_template_id_fkey` FOREIGN KEY (`template_id`) REFERENCES `template`(`template_id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `chatgpt_api_key` ADD CONSTRAINT `chatgpt_api_key_user_id_fkey` FOREIGN KEY (`user_id`) REFERENCES `user`(`user_id`) ON DELETE RESTRICT ON UPDATE CASCADE;

@@ -10,3 +10,5 @@ const templateController = new TemplateController();
 
 template.use(authMiddleware.middleware);
 template.post('/', templateController.create);
+template.get('/', templateController.list);
+template.get('/:slug', templateController.getBySlug);
