@@ -1,9 +1,9 @@
-import 'express-async-errors';
 import cors from 'cors';
 import express from 'express';
+import 'express-async-errors';
+import { env } from './env';
 import { ErrorMiddleware } from './middlewares/error.middleware';
 import { rotas } from './routes/index.routes';
-import { env } from './env';
 
 const app = express();
 

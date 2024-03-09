@@ -1,9 +1,9 @@
 import express from 'express';
 import { auth } from './auth.routes';
 import { category } from './category.routes';
-import { user } from './user.routes';
 import { chatgptApiKey } from './chatgpt-api-key.routes';
 import { template } from './template.routes';
+import { user } from './user.routes';
 
 export const rotas = express.Router();
 
