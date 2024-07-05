@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
+import { env } from '../env';
 import { ApiError } from '../types/api-error.types';
 import { ApiResponse } from '../types/api-response.types';
-import { env } from '../env';
 
 export class ErrorMiddleware {
 	async middleware(
