@@ -1,4 +1,5 @@
 import { template, variable } from '@prisma/client';
+import { TemplateModel } from '../models/template.model';
 
 export interface TemplateRepository {
 	create(
@@ -7,5 +8,5 @@ export interface TemplateRepository {
 		categories: number[],
 	): Promise<template>;
 	list(): Promise<template[]>;
-	getBySlug(slug: string): Promise<template | null>;
+	getBySlug(slug: string): Promise<TemplateModel | null>;
 }

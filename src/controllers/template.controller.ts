@@ -1,3 +1,5 @@
+import { Request, Response } from 'express';
+import { PrismaConversationRepository } from '../repositories/prisma/conversation.repository.prisma';
 import { PrismaTemplateRepository } from '../repositories/prisma/template.repository.prisma';
 import { PrismaUserRepository } from '../repositories/prisma/user.repository.prisma';
 import { ApiResponse } from '../types/api-response.types';
@@ -5,12 +7,11 @@ import {
 	CreatingTemplate,
 	CreatingTemplateRequest,
 } from '../usecases/template/creating-template.usecase';
-import { ListingTemplate } from '../usecases/template/listing-templates.usecase';
 import {
 	GetingTemplate,
 	GetingTemplateRequest,
 } from '../usecases/template/geting-template-by-slug.usecase';
-import { Request, Response } from 'express';
+import { ListingTemplate } from '../usecases/template/listing-templates.usecase';
 
 export class TemplateController {
 	public async create(req: Request, res: Response): Promise<Response> {
@@ -54,9 +55,11 @@ export class TemplateController {
 		const data: GetingTemplateRequest = { slug, user_id: id };
 		const userRepository = new PrismaUserRepository();
 		const templateRepository = new PrismaTemplateRepository();
+		const conversationRepository = new PrismaConversationRepository();
 		const getingTemplate = new GetingTemplate(
 			templateRepository,
 			userRepository,
+			conversationRepository,
 		);
 		const template = await getingTemplate.execute(data);
 

@@ -22,4 +22,12 @@ export class PrismaChatgptApiKeyRepository implements ChatgptApiKeyRepository {
 			},
 		});
 	}
+
+	getById(id: number): Promise<chatgpt_api_key | null> {
+		return prisma.chatgpt_api_key.findUnique({
+			where: {
+				chatgpt_api_key_id: id,
+			},
+		});
+	}
 }

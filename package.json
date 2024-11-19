@@ -2,12 +2,13 @@
 	"name": "backend",
 	"version": "1.0.0",
 	"description": "",
-	"main": "index.js",
+	"main": "dist/server.js",
 	"scripts": {
 		"dev": "nodemon src/server.ts",
 		"build": "npx prisma migrate deploy && npx prisma generate && tsup src",
 		"start": "node dist/server.js",
-		"database": "npx prisma studio"
+		"database": "npx prisma studio",
+		"seed": "ts-node prisma/seed.ts"
 	},
 	"prisma": {
 		"seed": "ts-node prisma/seed.ts"
@@ -37,6 +38,7 @@
 		"express-async-errors": "^3.1.1",
 		"jose": "^5.1.1",
 		"jsonwebtoken": "^9.0.2",
+		"openai": "^4.69.0",
 		"tsup": "^8.0.1"
 	}
 }

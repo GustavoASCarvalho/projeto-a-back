@@ -1,6 +1,7 @@
-import { $Enums, template, variable } from '@prisma/client';
+import { template, variable } from '@prisma/client';
 import { prisma } from '../../prisma';
 import { TemplateRepository } from '../interfaces/template.interface';
+import { TemplateModel } from '../models/template.model';
 
 export class PrismaTemplateRepository implements TemplateRepository {
 	async create(
@@ -86,8 +87,8 @@ export class PrismaTemplateRepository implements TemplateRepository {
 			},
 		});
 	}
-	async getBySlug(slug: string): Promise<template | null> {
-		return await prisma.template.findFirst({
+	async getBySlug(slug: string): Promise<TemplateModel | null> {
+		return (await prisma.template.findFirst({
 			where: {
 				slug: slug,
 			},
@@ -98,6 +99,6 @@ export class PrismaTemplateRepository implements TemplateRepository {
 					},
 				},
 			},
-		});
+		})) as TemplateModel;
 	}
 }

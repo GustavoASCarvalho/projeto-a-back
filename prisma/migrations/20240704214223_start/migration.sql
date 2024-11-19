@@ -124,8 +124,8 @@ CREATE TABLE `message` (
     `message_id` INTEGER NOT NULL AUTO_INCREMENT,
     `conversation_id` INTEGER NOT NULL,
     `chatgpt_api_key_id` INTEGER NOT NULL,
-    `message` VARCHAR(191) NOT NULL,
-    `response` VARCHAR(191) NULL,
+    `message` TEXT NOT NULL,
+    `response` TEXT NULL,
     `message_timestamp` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `response_timestamp` DATETIME(3) NULL,
 
