@@ -144,7 +144,7 @@ model message {
   chatgpt_api_key    chatgpt_api_key @relation(fields: [chatgpt_api_key_id], references: [chatgpt_api_key_id])
   chatgpt_api_key_id Int
   message            String @db.Text
-  response           String @db.Text
+  response           String? @db.Text 
   message_timestamp  DateTime        @default(now())
   response_timestamp DateTime?
 

@@ -9,6 +9,10 @@ import { user } from './user.routes';
 
 export const rotas = express.Router();
 
+rotas.get('/health', (req, res) => {
+	res.status(200).send('OK');
+});
+
 rotas.use('/auth', auth);
 rotas.use('/category', category);
 rotas.use('/user', user);
