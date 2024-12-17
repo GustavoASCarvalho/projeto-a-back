@@ -5,7 +5,8 @@
 	"main": "dist/server.js",
 	"scripts": {
 		"dev": "nodemon src/server.ts",
-		"build": "npx prisma migrate deploy && npx prisma generate && tsup src",
+		"build": "tsup src",
+		"init-db": "npx prisma migrate deploy && npx prisma generate && npm run seed",
 		"start": "node dist/server.js",
 		"database": "npx prisma studio",
 		"seed": "ts-node prisma/seed.ts"

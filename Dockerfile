@@ -1,13 +1,19 @@
 FROM node:20.9.0
 
-WORKDIR /usr/src/app
+WORKDIR /app
 
 COPY . .
 
+RUN rm -rf node_modules
+
+RUN npm ci
+
+RUN npm run build
+
 COPY .env .env
 
-RUN npm install
+CMD ["npm", "run", "start"]
+
+# CMD ["npm", "run", "dev"]
 
 EXPOSE 3000
-
-CMD ["npm", "run", "dev"]

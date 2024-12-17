@@ -1,23 +1,42 @@
-version: '3.1'
 services:
-  db:
-    container_name: db
-    image: mysql:latest
-    restart: always
-    environment:
-      MYSQL_DATABASE: ${DB_NAME}
-      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
-    volumes:
-      - ./mysql:/var/lib/mysql
+  postgres:
+    image: postgres
     ports:
-      - '${DB_PORT}:3306'
-    expose:
-      - '${DB_PORT}'
-  backend:
-    container_name: backend
-    restart: always
+      - '5432:5432'
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=1234
+      - POSTGRES_DB=projeto_a_database
+    volumes:
+      - projeto_a_database_data:/postgres/data
+  projeto-a-back:
+    container_name: projeto-a-back
     build: .
+    restart: always
     ports:
       - '3000:3000'
     depends_on:
-      - db
+      - postgres
+    environment:
+      - .env
+  projeto-a-front:
+    container_name: projeto-a-front
+    build: ../projeto-a-front
+    depends_on:
+      - projeto-a-back
+    volumes:
+      - projeto_a_volume:/var/www/html
+  nginx:
+    container_name: nginx
+    build: ../nginx
+    ports:
+      - 80:80
+    volumes:
+      - projeto_a_volume:/var/www/html
+    depends_on:
+      - postgres
+      - projeto-a-back
+      - projeto-a-front
+volumes:
+  projeto_a_volume:
+  projeto_a_database_data:

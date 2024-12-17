@@ -189,7 +189,7 @@ model chatgpt_api_key {
   chatgpt_api_key_id Int       @id @unique @default(autoincrement())
   user               user      @relation(fields: [user_id], references: [user_id])
   user_id            Int
-  api_key            String    @unique
+  api_key            String
   name               String
   created_at         DateTime  @default(now())
   messages           message[]
