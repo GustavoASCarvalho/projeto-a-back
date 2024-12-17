@@ -1,10 +1,11 @@
-import { ApiError } from '../../types/api-error.types';
-import { GoogleAuthService } from '../../services/google-auth.service';
-import { JWE } from '../../utils/jwe.utils';
-import { UserRepository } from '../../repositories/interfaces/user.interface';
 import dayjs from 'dayjs';
 import jwt from 'jsonwebtoken';
 import { AuthProvidersRepository } from '../../repositories/interfaces/auth-providers.interface';
+import { ChatgptApiKeyRepository } from '../../repositories/interfaces/chatgpt-api-key.interface';
+import { UserRepository } from '../../repositories/interfaces/user.interface';
+import { GoogleAuthService } from '../../services/google-auth.service';
+import { ApiError } from '../../types/api-error.types';
+import { JWE } from '../../utils/jwe.utils';
 
 export type AuthenticatingGoogleUserRequest = {
 	code: string;
@@ -22,6 +23,7 @@ export class AuthenticatingGoogleUser {
 		private userRepository: UserRepository,
 		private authProvidersRepository: AuthProvidersRepository,
 		private googleAuthService: GoogleAuthService,
+		private chatgptApiKeyRepository: ChatgptApiKeyRepository,
 	) {}
 
 	async execute({ code }: AuthenticatingGoogleUserRequest) {
@@ -47,6 +49,16 @@ export class AuthenticatingGoogleUser {
 			full_name: googleUser.name,
 			photo_url: googleUser.picture,
 		});
+
+		const keys = await this.chatgptApiKeyRepository.list(user.user_id);
+
+		if (keys.length === 0) {
+			await this.chatgptApiKeyRepository.create({
+				user_id: user.user_id,
+				api_key: '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',
+				name: 'Chave publica',
+			});
+		}
 
 		await this.authProvidersRepository.findOrCreate({
 			user_id: user.user_id,

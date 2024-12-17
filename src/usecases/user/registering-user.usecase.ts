@@ -1,9 +1,10 @@
+import bcrypt from 'bcrypt';
+import dayjs from 'dayjs';
+import { AuthProvidersRepository } from '../../repositories/interfaces/auth-providers.interface';
+import { ChatgptApiKeyRepository } from '../../repositories/interfaces/chatgpt-api-key.interface';
 import { UserRepository } from '../../repositories/interfaces/user.interface';
 import { ApiError } from '../../types/api-error.types';
-import dayjs from 'dayjs';
 import { JWE } from '../../utils/jwe.utils';
-import bcrypt from 'bcrypt';
-import { AuthProvidersRepository } from '../../repositories/interfaces/auth-providers.interface';
 
 export type RegisteringUserRequest = {
 	email: string;
@@ -14,6 +15,7 @@ export class RegisteringUser {
 	constructor(
 		private userRepository: UserRepository,
 		private authProvidersRepository: AuthProvidersRepository,
+		private chatgptApiKeyRepository: ChatgptApiKeyRepository,
 	) {}
 
 	async execute({ email, password }: RegisteringUserRequest) {
@@ -23,6 +25,16 @@ export class RegisteringUser {
 			email,
 			password_hash: bcrypt.hashSync(password, 10),
 		});
+
+		const keys = await this.chatgptApiKeyRepository.list(user.user_id);
+
+		if (keys.length === 0) {
+			await this.chatgptApiKeyRepository.create({
+				user_id: user.user_id,
+				api_key: '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',
+				name: 'Chave publica',
+			});
+		}
 
 		await this.authProvidersRepository.findOrCreate({
 			user_id: user.user_id,

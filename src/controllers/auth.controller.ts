@@ -1,3 +1,11 @@
+import { Request, Response } from 'express';
+import { env } from '../env';
+import { PrismaAuthProvidersRepository } from '../repositories/prisma/auth-providers.repository.prisma';
+import { PrismaChatgptApiKeyRepository } from '../repositories/prisma/chatgpt-api-key.repository.prisma';
+import { PrismaUserRepository } from '../repositories/prisma/user.repository.prisma';
+import { GoogleAuthService } from '../services/google-auth.service';
+import { ApiResponse } from '../types/api-response.types';
+import { AuthenticatingGoogleUser } from '../usecases/user/authenticating-google-user.usecase';
 import {
 	AuthenticatingUser,
 	AuthenticatingUserRequest,
@@ -6,13 +14,6 @@ import {
 	RegisteringUser,
 	RegisteringUserRequest,
 } from '../usecases/user/registering-user.usecase';
-import { Request, Response } from 'express';
-import { ApiResponse } from '../types/api-response.types';
-import { PrismaUserRepository } from '../repositories/prisma/user.repository.prisma';
-import { PrismaAuthProvidersRepository } from '../repositories/prisma/auth-providers.repository.prisma';
-import { GoogleAuthService } from '../services/google-auth.service';
-import { AuthenticatingGoogleUser } from '../usecases/user/authenticating-google-user.usecase';
-import { env } from '../env';
 
 export class AuthController {
 	public async verify(_: Request, res: Response): Promise<Response> {
@@ -26,9 +27,11 @@ export class AuthController {
 		const data: RegisteringUserRequest = req.body;
 		const userRepository = new PrismaUserRepository();
 		const authProvidersRepository = new PrismaAuthProvidersRepository();
+		const prismaChatgptApiKeyRepository = new PrismaChatgptApiKeyRepository();
 		const registeringUser = new RegisteringUser(
 			userRepository,
 			authProvidersRepository,
+			prismaChatgptApiKeyRepository,
 		);
 
 		const { token } = await registeringUser.execute(data);
@@ -64,10 +67,12 @@ export class AuthController {
 		const googleAuthService = new GoogleAuthService();
 		const userRepository = new PrismaUserRepository();
 		const authProvidersRepository = new PrismaAuthProvidersRepository();
+		const prismaChatgptApiKeyRepository = new PrismaChatgptApiKeyRepository();
 		const authenticatingUser = new AuthenticatingGoogleUser(
 			userRepository,
 			authProvidersRepository,
 			googleAuthService,
+			prismaChatgptApiKeyRepository,
 		);
 
 		const { token } = await authenticatingUser.execute({ code });
