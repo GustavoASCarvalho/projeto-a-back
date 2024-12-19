@@ -19,24 +19,5 @@ services:
       - postgres
     environment:
       - .env
-  projeto-a-front:
-    container_name: projeto-a-front
-    build: ../projeto-a-front
-    depends_on:
-      - projeto-a-back
-    volumes:
-      - projeto_a_volume:/var/www/html
-  nginx:
-    container_name: nginx
-    build: ../nginx
-    ports:
-      - 80:80
-    volumes:
-      - projeto_a_volume:/var/www/html
-    depends_on:
-      - postgres
-      - projeto-a-back
-      - projeto-a-front
 volumes:
-  projeto_a_volume:
   projeto_a_database_data:
